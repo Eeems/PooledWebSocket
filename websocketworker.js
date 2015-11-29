@@ -48,10 +48,19 @@ onconnect = function(e){
 									socket.property('url');
 									socket.event('open',arguments);
 								};
-								ws.onmessage = function(){
+								ws.onmessage = function(e){
 									socket.property('extensions');
 									socket.property('readyState');
-									socket.event('message',arguments);
+									var a = Array.prototype.slice.call(arguments);
+									a[0] = Object.assign({},e);
+									if(e.data instanceof Blob){
+										var r = new FileReaderSync();
+										a[0].data = r.readAsText(e.data);
+										socket.event('message',a);
+									}else{
+										a[0].data = e.data+'';
+										socket.event('message',a);
+									}
 								};
 								ws.onerror = function(){
 									socket.property('extensions');

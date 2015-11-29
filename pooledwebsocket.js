@@ -168,7 +168,7 @@
 		pool.on(url,'open',function(){
 			opened = arguments;
 			events.open.forEach(function(fn){
-				fn.apply(self,arguments);
+				fn.call(self,arguments);
 			});
 		});
 		pool.on(url,'message',function(){
@@ -180,6 +180,7 @@
 			properties[name] = value;
 		});
 		pool.on(url,'error',function(){
+			errored = arguments;
 			events.error.forEach(function(fn){
 				fn.apply(self,arguments);
 			});
