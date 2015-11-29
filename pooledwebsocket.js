@@ -1,7 +1,15 @@
 (function(global,undefined){
 	var events = {},
+		pmh = null,
 		pool = {
-			postMessage: null,
+			postMessage: function(){
+				var args = Array.prototype.slice.call(arguments);
+				args.forEach(function(v,i){
+					args[i] = JSON.stringify(v);
+				});
+				console.info('postMessage: '+JSON.stringify(args));
+				pmh.call(pool,args);
+			},
 			open: function(url,protocols){
 				pool.postMessage({
 					action: 'open',
@@ -15,7 +23,7 @@
 			}
 		},
 		revert = function(e){
-			pool.postMessage = function(){
+			pmh = function(){
 				return window.postMessage.apply(window,arguments);
 			};
 			window.addEventListener('message',function(e){
@@ -27,7 +35,7 @@
 	if('SharedWorker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new SharedWorker('websocketworker.js');
-		pool.postMessage = function(){
+		pmh = function(){
 			return worker.port.postMessage.apply(worker.port,arguments);
 		};
 		worker.port.onmessage = function(e){
@@ -42,7 +50,7 @@
 		navigator.serviceWorker
 			.register('websocketworker.js')
 			.then(function(reg){
-				pool.postMessage = function(){
+				pmh = function(){
 					var c = navigator.serviceWorker.controller;
 					return c.postMessage.apply(c,arguments);
 				};
@@ -51,20 +59,24 @@
 	}else{
 		revert();
 	}
-	pool.onmessage = function(data){
-		switch(data.action){
-			case 'event':
-				events[data.name] && events[data.name].forEach(function(fn){
-					fn(data.arguments);
-				});
-			break;
-			case 'property':
-				pool.onmessage({
-					action: 'event',
-					name: 'property',
-					arguments: [data.name,data.value]
-				});
-			break;
+	pool.onmessage = function(e){
+		if(e.data){
+			var data = JSON.parse(e.data);
+			switch(data.action){
+				case 'event':
+					console.info('Event: '+data.event+' '+JSON.stringify(data.arguments));
+					events[data.event] && events[data.event].forEach(function(fn){
+						fn(data.arguments);
+					});
+				break;
+				case 'property':
+					pool.onmessage({
+						action: 'event',
+						name: 'property',
+						arguments: [data.name,data.value]
+					});
+				break;
+			}
 		}
 	};
 	global.PooledWebSocket = function(url,protocols){
@@ -133,8 +145,25 @@
 				set: function(fn){
 					onevents.onclose = fn;
 				}
+			},
+			events: {
+				get: function(){
+					return events;
+				}
 			}
 		});
+		self.on = function(event,fn){
+			events[event] || (events[event] = []);
+			events[event].push(fn);
+			return this;
+		};
+		self.send = function(data){
+			pool.postMessage({
+				action: 'send',
+				url: url,
+				data: data
+			});
+		};
 		pool.open(url,protocols);
 		pool.on(url,'open',function(){
 			opened = arguments;
