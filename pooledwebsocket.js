@@ -8,7 +8,7 @@
 					args[i] = JSON.stringify(v);
 				});
 				console.info('postMessage: '+JSON.stringify(args));
-				pmh.call(pool,args);
+				pmh.apply(pool,args);
 			},
 			open: function(url,protocols){
 				pool.postMessage({
@@ -66,7 +66,7 @@
 				case 'event':
 					console.info('Event: '+data.event+' '+JSON.stringify(data.arguments));
 					events[data.event] && events[data.event].forEach(function(fn){
-						fn(data.arguments);
+						fn.apply({},data.arguments);
 					});
 				break;
 				case 'property':
