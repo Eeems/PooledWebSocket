@@ -122,6 +122,7 @@
 				},
 				set: function(fn){
 					onevents.onopen = fn;
+					self.runQueue('open');
 				}
 			},
 			onmessage: {
@@ -130,6 +131,7 @@
 				},
 				set: function(fn){
 					onevents.onmessage = fn;
+					self.runQueue('message');
 				}
 			},
 			onerror: {
@@ -138,6 +140,7 @@
 				},
 				set: function(fn){
 					onevents.onerror = fn;
+					self.runQueue('error');
 				}
 			},
 			onclose: {
@@ -146,6 +149,7 @@
 				},
 				set: function(fn){
 					onevents.onclose = fn;
+					self.runQueue('close');
 				}
 			},
 			events: {
