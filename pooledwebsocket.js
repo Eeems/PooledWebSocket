@@ -89,8 +89,12 @@
 				error: [],
 				close: []
 			},
-			opened = false,
-			errored = false;
+			queue = {
+				open: [],
+				message: [],
+				error: [],
+				close: []
+			};
 		Object.defineProperties(self,{
 			readyState: {
 				get: function(){
@@ -117,7 +121,6 @@
 					return onevents.onopen;
 				},
 				set: function(fn){
-					!onevents.onopen && opened && fn.apply(self,opened);
 					onevents.onopen = fn;
 				}
 			},
@@ -134,7 +137,6 @@
 					return onevents.onerror;
 				},
 				set: function(fn){
-					!onevents.onopen && errored && fn.apply(self,errored);
 					onevents.onerror = fn;
 				}
 			},
@@ -152,10 +154,29 @@
 				}
 			}
 		});
+		self.runQueue = function(name){
+			if(queue[name]){
+				queue[name].forEach(function(args){
+					events[name].forEach(function(fn){
+						fn.apply(self,args);
+					});
+					onevents['on'+name] && onevents['on'+name].apply(self,args);
+				});
+				if(events[name].length > 0 || onevents['on'+name]){
+					queue[name] = [];
+				}
+			}
+			return self;
+		};
+		self.fire = function(name,args){
+			queue[name].push(args);
+			self.runQueue(name);
+		};
 		self.on = function(event,fn){
 			events[event] || (events[event] = []);
 			events[event].push(fn);
-			return this;
+			self.runQueue(event);
+			return self;
 		};
 		self.send = function(data){
 			pool.postMessage({
@@ -166,29 +187,19 @@
 		};
 		pool.open(url,protocols);
 		pool.on(url,'open',function(){
-			opened = arguments;
-			events.open.forEach(function(fn){
-				fn.call(self,arguments);
-			});
+			self.fire('open',arguments);
 		});
 		pool.on(url,'message',function(){
-			events.message.forEach(function(fn){
-				fn.apply(self,arguments);
-			});
+			self.fire('message',arguments);
 		});
 		pool.on(url,'property',function(name,value){
 			properties[name] = value;
 		});
 		pool.on(url,'error',function(){
-			errored = arguments;
-			events.error.forEach(function(fn){
-				fn.apply(self,arguments);
-			});
+			self.fire('error',arguments);
 		});
 		pool.on(url,'close',function(){
-			events.close.forEach(function(fn){
-				fn.apply(self,arguments);
-			});
+			self.fire('close',arguments);
 		});
 		return self;
 	};

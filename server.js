@@ -9,6 +9,7 @@ server.on('connection', function(ws) {
 	clients.push(ws);
 	ws.on('message', function(data) {
 		console.log('Received: %s', data);
+		console.log('Sent: %s', data);
 		ws.send(data);
 	});
 	ws.on('close',function(){
@@ -17,6 +18,7 @@ server.on('connection', function(ws) {
 });
 process.stdin.on('data',function(data){
 	clients.forEach(function(ws){
+		console.log('Sent: %s', data);
 		ws.send(data);
 	});
 });
