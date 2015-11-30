@@ -182,6 +182,7 @@
 			self.runQueue(event);
 			return self;
 		};
+		self.addEventListener = self.on;
 		self.send = function(data){
 			pool.postMessage({
 				action: 'send',
