@@ -1,96 +1,101 @@
-var sockets = {};
-onconnect = function(e){
-	e.ports.forEach(function(port){
-		port.onmessage = function(e){
-			if(e.data){
-				var data = JSON.parse(e.data);
-				if(data.action != 'open' && !sockets[data.url]){
-					throw new Error('Socket not open. '+data);
-				}else{
-					switch(data.action){
-						case 'open':
-							var socket = sockets[data.url]
-							if(socket){
-								socket = sockets[data.url];
-								socket.ports.push(port);
-							}else{
-								var ws = new WebSocket(data.url,data.protocols);
-								socket = {
-									url: data.url,
-									socket: ws,
-									ports: [port],
-									postMessage: function(data){
-										data.url = socket.url;
-										data = JSON.stringify(data);
-										socket.ports.forEach(function(port){
-											port.postMessage(data);
-										});
-									},
-									event: function(name,args){
-										socket.postMessage({
-											action: 'event',
-											event: name,
-											arguments: Array.prototype.slice.call(args)
-										});
-									},
-									property: function(name){
-										socket.postMessage({
-											action: 'property',
-											name: name,
-											value: ws[name]
-										});
-									}
-								};
-								ws.onopen = function(){
-									socket.property('extensions');
-									socket.property('protocol');
-									socket.property('readyState');
-									socket.property('url');
-									socket.event('open',arguments);
-								};
-								ws.onmessage = function(e){
-									socket.property('extensions');
-									socket.property('readyState');
-									var a = Array.prototype.slice.call(arguments);
-									a[0] = Object.assign({},e);
-									if(e.data instanceof Blob){
-										var r = new FileReaderSync();
-										a[0].data = r.readAsText(e.data);
-										socket.event('message',a);
-									}else{
-										a[0].data = e.data+'';
-										socket.event('message',a);
-									}
-								};
-								ws.onerror = function(){
-									socket.property('extensions');
-									socket.property('readyState');
-									socket.event('error',arguments);
-								};
-								ws.onclose = function(){
-									socket.property('extensions');
-									socket.property('readyState');
-									socket.event('close',arguments);
-									delete sockets[data.url];
-								};
-								sockets[data.url] = socket;
-							}
-						break;
-						case 'send':
-							sockets[data.url].socket.send(data.data);
-						break;
-						case 'close':
-							sockets[data.url].socket.close();
-						break;
-						case 'property':
-							sockets[data.url].property(data.name);
-						break;
-					}
+var sockets = {},
+	handle = function(e){
+		if(e.data){
+			var data = JSON.parse(e.data);
+			if(data.action != 'open' && !sockets[data.url]){
+				throw new Error('Socket not open. '+data);
+			}else{
+				switch(data.action){
+					case 'open':
+						var socket = sockets[data.url]
+						if(socket){
+							socket = sockets[data.url];
+							socket.ports.push(e.source);
+							socket.property('extensions');
+							socket.property('protocol');
+							socket.property('readyState');
+							socket.property('url');
+							socket.event('open',[]);
+						}else{
+							var ws = new WebSocket(data.url,data.protocols);
+							socket = {
+								url: data.url,
+								socket: ws,
+								ports: [e.source],
+								postMessage: function(data){
+									data.url = socket.url;
+									data = JSON.stringify(data);
+									socket.ports.forEach(function(port){
+										port.postMessage(data);
+									});
+								},
+								event: function(name,args){
+									socket.postMessage({
+										action: 'event',
+										event: name,
+										arguments: Array.prototype.slice.call(args)
+									});
+								},
+								property: function(name){
+									socket.postMessage({
+										action: 'property',
+										name: name,
+										value: ws[name]
+									});
+								}
+							};
+							ws.onopen = function(){
+								socket.property('extensions');
+								socket.property('protocol');
+								socket.property('readyState');
+								socket.property('url');
+								socket.event('open',arguments);
+							};
+							ws.onmessage = function(e){
+								socket.property('extensions');
+								socket.property('readyState');
+								var a = Array.prototype.slice.call(arguments);
+								a[0] = Object.assign({},e);
+								if(e.data instanceof Blob){
+									var r = new FileReaderSync();
+									a[0].data = r.readAsText(e.data);
+									socket.event('message',a);
+								}else{
+									a[0].data = e.data+'';
+									socket.event('message',a);
+								}
+							};
+							ws.onerror = function(){
+								socket.property('extensions');
+								socket.property('readyState');
+								socket.event('error',arguments);
+							};
+							ws.onclose = function(){
+								socket.property('extensions');
+								socket.property('readyState');
+								socket.event('close',arguments);
+								delete sockets[data.url];
+							};
+							sockets[data.url] = socket;
+						}
+					break;
+					case 'send':
+						sockets[data.url].socket.send(data.data);
+					break;
+					case 'close':
+						sockets[data.url].socket.close();
+					break;
+					case 'property':
+						sockets[data.url].property(data.name);
+					break;
 				}
 			}
-			// Handle sending to socket
 		};
+	};
+self.addEventListener('message',handle);
+onconnect = function(e){
+	e.ports.forEach(function(port){
+		port.onmessage = handle;
 		port.start();
-		// Handle recieving from socket
 	});
 };

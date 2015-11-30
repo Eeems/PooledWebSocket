@@ -1,14 +1,21 @@
 (function(global,undefined){
-	var events = {},
-		pmh = null,
-		pool = {
+	var pool = {
+			handler: null,
+			queue: [],
+			events: {},
 			postMessage: function(){
 				var args = Array.prototype.slice.call(arguments);
 				args.forEach(function(v,i){
 					args[i] = JSON.stringify(v);
 				});
 				console.info('postMessage: '+JSON.stringify(args));
-				pmh.apply(pool,args);
+				pool.queue.push(args);
+				if(pool.handler){
+					pool.queue.forEach(function(args){
+						pool.handler.apply(pool,args);
+					});
+					pool.queue = [];
+				}
 			},
 			open: function(url,protocols){
 				pool.postMessage({
@@ -18,12 +25,12 @@
 				});
 			},
 			on: function(url,event,fn){
-				events[event] || (events[event] = []);
-				events[event].push(fn);
+				pool.events[event] || (pool.events[event] = []);
+				pool.events[event].push(fn);
 			}
 		},
 		revert = function(e){
-			pmh = function(){
+			pool.handler = function(){
 				return window.postMessage.apply(window,arguments);
 			};
 			window.addEventListener('message',function(e){
@@ -35,7 +42,7 @@
 	if('SharedWorker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new SharedWorker('websocketworker.js');
-		pmh = function(){
+		pool.handler = function(){
 			return worker.port.postMessage.apply(worker.port,arguments);
 		};
 		worker.port.onmessage = function(e){
@@ -50,9 +57,15 @@
 		navigator.serviceWorker
 			.register('websocketworker.js')
 			.then(function(reg){
-				pmh = function(){
-					var c = navigator.serviceWorker.controller;
-					return c.postMessage.apply(c,arguments);
+				var sw = navigator.serviceWorker;
+				pool.handler = function(){
+					return sw.controller.postMessage.apply(sw.controller,arguments);
+				};
+				sw.onmessage = function(e){
+					pool.onmessage(e);
+				};
+				sw.onerror = function(e){
+					console.error(e);
 				};
 			})
 			.catch(revert)
@@ -65,7 +78,7 @@
 			switch(data.action){
 				case 'event':
 					console.info('Event: '+data.event+' '+JSON.stringify(data.arguments));
-					events[data.event] && events[data.event].forEach(function(fn){
+					pool.events[data.event] && pool.events[data.event].forEach(function(fn){
 						fn.apply({},data.arguments);
 					});
 				break;
@@ -155,6 +168,11 @@
 			events: {
 				get: function(){
 					return events;
+				}
+			},
+			pool: {
+				get: function(){
+					return pool;
 				}
 			}
 		});
