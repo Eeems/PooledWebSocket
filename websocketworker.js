@@ -1,4 +1,16 @@
 var sockets = {},
+	sanitize = function(obj){
+		var nobj = {};
+		Object.getOwnPropertyNames(obj)
+			.forEach(function(key){
+				var v = obj[key];
+				if(typeof v == 'object'){
+					v = sanitize(v);
+				}
+				nobj[key] = v;
+			});
+		return nobj;
+	},
 	handle = function(e){
 		if(e.data){
 			var data = JSON.parse(e.data);
@@ -24,7 +36,7 @@ var sockets = {},
 								ports: [e.source],
 								postMessage: function(data){
 									data.url = socket.url;
-									data = JSON.stringify(data);
+									data = JSON.stringify(sanitize(data));
 									socket.ports.forEach(function(port){
 										port.postMessage(data);
 									});
