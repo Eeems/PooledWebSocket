@@ -3,8 +3,8 @@
 	"version": "0.0.1",
 	"author": {
 		"name": "Nathaniel van Diepen",
-		"email": "eeems@omnimaga.org",
-		"url": "http://eeems.ca"
+		"email": "eeems13@gmail.com",
+		"url": "https://github.com/Eeems/PooledWebSocket"
 	},
 	"description": "Pooled Web Sockets",
 	"main": "./server.js",
