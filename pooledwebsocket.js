@@ -54,21 +54,30 @@
 		worker.port.start();
 	}else if('serviceWorker' in navigator){
 		console.info('Using service worker for pool');
-		navigator.serviceWorker
-			.register('websocketworker.js')
-			.then(function(reg){
-				var sw = navigator.serviceWorker;
-				pool.handler = function(){
-					return sw.controller.postMessage.apply(sw.controller,arguments);
-				};
-				sw.onmessage = function(e){
-					pool.onmessage(e);
-				};
-				sw.onerror = function(e){
-					console.error(e);
-				};
-			})
-			.catch(revert)
+		(function(){
+			var sw;
+			pool.handler = function(){
+				return sw.postMessage.apply(sw,arguments);
+			};
+			navigator.serviceWorker.oncontrollerchange = function(e){
+				sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker;
+			};
+			navigator.serviceWorker.onmessage = function(e){
+				pool.onmessage(e);
+			};
+			navigator.serviceWorker
+				.register('websocketworker.js',{
+					//scope: './pooledwebsocket'
+				})
+				.then(function(reg){
+					console.info('Service worker registered');
+					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
+					sw.onstatechange = function(e){
+						console.log(e);
+					};
+				})
+				.catch(revert);
+		})();
 	}else if('Worker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new Worker('websocketworker.js');

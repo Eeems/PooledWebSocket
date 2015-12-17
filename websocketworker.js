@@ -14,8 +14,8 @@ var sockets = {},
 	handle = function(e){
 		if(e.data){
 			var data = JSON.parse(e.data);
-			if(data.action != 'open' && !sockets[data.url]){
-				throw new Error('Socket not open. '+data);
+			if(['open','ping'].indexOf(data.action) == -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
+				throw new Error('Socket not open. '+e.data);
 			}else{
 				switch(data.action){
 					case 'open':
@@ -93,6 +93,7 @@ var sockets = {},
 								delete sockets[data.url];
 							};
 							sockets[data.url] = socket;
+							console.info('Socket connection created');
 						}
 					break;
 					case 'send':
