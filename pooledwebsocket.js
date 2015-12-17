@@ -3,11 +3,11 @@
 			handler: null,
 			queue: [],
 			events: {},
-			postMessage: function(){
-				var args = Array.prototype.slice.call(arguments);
-				args.forEach(function(v,i){
-					args[i] = JSON.stringify(v);
-				});
+			postMessage: function(msg,origin){
+				var args = [
+					JSON.stringify(msg),
+					origin || location.origin
+				];
 				console.info('postMessage: '+JSON.stringify(args));
 				pool.queue.push(args);
 				if(pool.handler){
