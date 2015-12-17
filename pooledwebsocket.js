@@ -6,7 +6,7 @@
 			postMessage: function(msg,origin){
 				var args = [
 					JSON.stringify(msg),
-					origin || location.origin
+					origin
 				];
 				console.info('postMessage: '+JSON.stringify(args));
 				pool.queue.push(args);
@@ -30,8 +30,8 @@
 			}
 		},
 		revert = function(e){
-			pool.handler = function(){
-				return window.postMessage.apply(window,arguments);
+			pool.handler = function(msg){
+				return window.postMessage.call(window,msg,location.origin);
 			};
 			window.addEventListener('message',function(e){
 				pool.onmessage(e);
@@ -69,6 +69,18 @@
 				};
 			})
 			.catch(revert)
+	}else if('Worker' in window){
+		console.info('Using shared worker for pool');
+		var worker = new Worker('websocketworker.js');
+		pool.handler = function(){
+			return worker.postMessage.apply(worker,arguments);
+		};
+		worker.onmessage = function(e){
+			pool.onmessage(e);
+		};
+		worker.onerror = function(e){
+			console.error(e);
+		};
 	}else{
 		revert();
 	}

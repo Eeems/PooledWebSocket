@@ -37,9 +37,13 @@ var sockets = {},
 								postMessage: function(data){
 									data.url = socket.url;
 									data = JSON.stringify(sanitize(data));
-									socket.ports.forEach(function(port){
-										port.postMessage(data);
-									});
+									if(socket.ports[0]){
+										socket.ports.forEach(function(port){
+											port.postMessage(data);
+										});
+									}else{
+										postMessage(data);
+									}
 								},
 								event: function(name,args){
 									socket.postMessage({
