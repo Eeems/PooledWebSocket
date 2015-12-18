@@ -116,9 +116,11 @@
 				break;
 				case 'property':
 					pool.onmessage({
-						action: 'event',
-						name: 'property',
-						arguments: [data.name,data.value]
+						data: JSON.stringify({
+							action: 'event',
+							name: 'property',
+							arguments: [data.name,data.value]
+						})
 					});
 				break;
 			}
