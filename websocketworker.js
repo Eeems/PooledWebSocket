@@ -116,3 +116,6 @@ onconnect = function(e){
 		port.start();
 	});
 };
+if("clients" in self){
+	clients.claim();
+}

@@ -55,7 +55,12 @@
 	}else if('serviceWorker' in navigator){
 		console.info('Using service worker for pool');
 		(function(){
-			var sw;
+			var sw = {
+				postMessage: function(){
+					queue.push(arguments);
+				}
+			},
+			queue = [];
 			pool.handler = function(){
 				return sw.postMessage.apply(sw,arguments);
 			};
@@ -72,8 +77,14 @@
 				.then(function(reg){
 					console.info('Service worker registered');
 					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
+					while(queue.length){
+						sw.postMessage.apply(sw,queue.shift());
+					}
 					sw.onstatechange = function(e){
-						console.log(e);
+						if(e.target.state != 'activated'){
+							console.info('Using new service worker');
+							sw = e.target;
+						}
 					};
 				})
 				.catch(revert);
