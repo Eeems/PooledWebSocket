@@ -118,7 +118,7 @@
 					pool.onmessage({
 						data: JSON.stringify({
 							action: 'event',
-							name: 'property',
+							event: 'property',
 							arguments: [data.name,data.value]
 						})
 					});
