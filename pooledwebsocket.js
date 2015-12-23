@@ -34,7 +34,9 @@
 				return window.postMessage.call(window,msg,location.origin);
 			};
 			window.addEventListener('message',function(e){
-				pool.onmessage(e);
+				if(e.origin == location.origin){
+					pool.onmessage(e);
+				}
 			});
 			e && console.error(e);
 			console.info('Reverting to non-pooled');
