@@ -106,12 +106,16 @@ var sockets = {},
 						sockets[data.url].property(data.name);
 					break;
 					case 'detach':
+						var socket = sockets[data.url];
 						if(e.ports.length===0){
-							sockets[data.url].socket.close();
+							socket.socket.close();
 						}else{
 							data.url = socket.url;
 							data = JSON.stringify(sanitize(data));
 							e.port.postMessage(data);
+							if(socket.ports.indexOf(e.port)!=-1){
+								socket.ports.splice(socket.ports.indexOf(e.port));
+							}
 						}
 					break;
 				}
