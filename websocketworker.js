@@ -41,7 +41,7 @@ var sockets = {},
 										socket.ports.forEach(function(port){
 											port.postMessage(data);
 										});
-									}else{
+									}else if("postMessage" in self){
 										postMessage(data);
 									}
 								},
@@ -107,16 +107,18 @@ var sockets = {},
 					break;
 					case 'detach':
 						var socket = sockets[data.url];
-						if(e.ports.length===0){
-							socket.socket.close();
-						}else{
-							data.url = socket.url;
-							data = JSON.stringify(sanitize(data));
-							e.port.postMessage(data);
-							if(socket.ports.indexOf(e.port)!=-1){
-								socket.ports.splice(socket.ports.indexOf(e.port));
-							}
+						if(socket.ports.indexOf(e.source)!=-1){
+							socket.ports.splice(socket.ports.indexOf(e.source));
 						}
+						if(socket.ports.length === 0){
+							socket.socket.close();
+						}
+						e.source.postMessage(JSON.stringify(sanitize({
+							url: socket.url,
+							action: 'event',
+							event: 'close',
+							arguments: []
+						})));
 					break;
 				}
 			}
