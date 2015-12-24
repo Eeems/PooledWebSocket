@@ -33,6 +33,9 @@
 			pool.handler = function(msg){
 				return window.postMessage.call(window,msg,location.origin);
 			};
+			pool.detach = function(url){
+				// TODO - handle web socket in window
+			};
 			window.addEventListener('message',function(e){
 				if(e.origin == location.origin){
 					pool.onmessage(e);
@@ -46,6 +49,12 @@
 		var worker = new SharedWorker('websocketworker.js');
 		pool.handler = function(){
 			return worker.port.postMessage.apply(worker.port,arguments);
+		};
+		pool.detach = function(url){
+			pool.postMessage({
+				action: 'detach',
+				url: url
+			});
 		};
 		worker.port.onmessage = function(e){
 			pool.onmessage(e);
@@ -65,6 +74,9 @@
 			queue = [];
 			pool.handler = function(){
 				return sw.postMessage.apply(sw,arguments);
+			};
+			pool.detach = function(url){
+				// Do nothing. Service workers don't care
 			};
 			navigator.serviceWorker.oncontrollerchange = function(e){
 				sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker;
@@ -96,6 +108,9 @@
 		var worker = new Worker('websocketworker.js');
 		pool.handler = function(){
 			return worker.postMessage.apply(worker,arguments);
+		};
+		pool.detach = function(url){
+			// Handle detaching from worker
 		};
 		worker.onmessage = function(e){
 			pool.onmessage(e);
@@ -243,6 +258,9 @@
 				url: url,
 				data: data
 			});
+		};
+		self.detach = function(){
+			pool.detach(url);
 		};
 		pool.open(url,protocols);
 		pool.on(url,'open',function(){

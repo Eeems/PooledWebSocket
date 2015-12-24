@@ -105,6 +105,16 @@ var sockets = {},
 					case 'property':
 						sockets[data.url].property(data.name);
 					break;
+					case 'detach':
+						if(e.ports.length == 1){
+							handle({
+								data: JSON.stringify({
+									action: 'close',
+									url: data.url
+								})
+							});
+						}
+					break;
 				}
 			}
 		};
