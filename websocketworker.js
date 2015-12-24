@@ -19,7 +19,7 @@ var sockets = {},
 			}else{
 				switch(data.action){
 					case 'open':
-						var socket = sockets[data.url]
+						var socket = sockets[data.url];
 						if(socket){
 							socket = sockets[data.url];
 							socket.ports.push(e.source);
@@ -106,13 +106,12 @@ var sockets = {},
 						sockets[data.url].property(data.name);
 					break;
 					case 'detach':
-						if(!e.ports.length){
-							handle({
-								data: JSON.stringify({
-									action: 'close',
-									url: data.url
-								})
-							});
+						if(e.ports.length===0){
+							sockets[data.url].socket.close();
+						}else{
+							data.url = socket.url;
+							data = JSON.stringify(sanitize(data));
+							e.port.postMessage(data);
 						}
 					break;
 				}
