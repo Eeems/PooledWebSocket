@@ -106,7 +106,7 @@ var sockets = {},
 						sockets[data.url].property(data.name);
 					break;
 					case 'detach':
-						if(e.ports.length == 1){
+						if(!e.ports.length){
 							handle({
 								data: JSON.stringify({
 									action: 'close',
