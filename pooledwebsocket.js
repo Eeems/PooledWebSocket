@@ -262,6 +262,12 @@
 		self.detach = function(){
 			pool.detach(url);
 		};
+		self.close = function(){
+			pool.postMessage({
+				action: 'close',
+				url: url
+			});
+		}
 		pool.open(url,protocols);
 		pool.on(url,'open',function(){
 			self.fire('open',arguments);
