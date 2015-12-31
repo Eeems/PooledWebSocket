@@ -267,7 +267,18 @@
 				action: 'close',
 				url: url
 			});
-		}
+		};
+		self.reconnect = function(){
+			self.close();
+			pool.open(url,protocols);
+		};
+		self.open = function(){
+			if(self.readyState == 3){
+				pool.open(url,protocols);
+			}else{
+				throw new Error('PooledWebSocket is already open');
+			}
+		};
 		pool.open(url,protocols);
 		pool.on(url,'open',function(){
 			self.fire('open',arguments);
