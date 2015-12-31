@@ -251,6 +251,12 @@
 			self.runQueue(event);
 			return self;
 		};
+		self.off = function(event,fn){
+			if(events[event] && events[event].indexOf(fn)!=-1){
+				events[event].splice(events[event].indexOf(fn),1);
+			}
+			return self;
+		};
 		self.addEventListener = self.on;
 		self.send = function(data){
 			pool.postMessage({
