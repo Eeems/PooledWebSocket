@@ -1,6 +1,7 @@
 (function(global,undefined){
 	var pool = {
 			handler: null,
+			worker: null,
 			queue: [],
 			events: {},
 			postMessage: function(msg,origin){
@@ -47,6 +48,7 @@
 	if('SharedWorker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new SharedWorker('websocketworker.js');
+		pool.worker = worker;
 		pool.handler = function(){
 			return worker.port.postMessage.apply(worker.port,arguments);
 		};
@@ -67,11 +69,12 @@
 		console.info('Using service worker for pool');
 		(function(){
 			var sw = {
-				postMessage: function(){
-					queue.push(arguments);
-				}
-			},
-			queue = [];
+					postMessage: function(){
+						queue.push(arguments);
+					}
+				},
+				queue = [];
+			pool.worker = sw;
 			pool.handler = function(){
 				return sw.postMessage.apply(sw,arguments);
 			};
@@ -91,6 +94,7 @@
 				.then(function(reg){
 					console.info('Service worker registered');
 					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
+					pool.worker = sw;
 					while(queue.length){
 						sw.postMessage.apply(sw,queue.shift());
 					}
@@ -106,6 +110,7 @@
 	}else if('Worker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new Worker('websocketworker.js');
+		pool.worker = worker;
 		pool.handler = function(){
 			return worker.postMessage.apply(worker,arguments);
 		};
