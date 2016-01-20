@@ -13,7 +13,8 @@ var sockets = {},
 	},
 	handle = function(e){
 		if(e.data){
-			var data = JSON.parse(e.data);
+			var data = JSON.parse(e.data),
+				source = e.source || e.target;
 			if(['open','ping'].indexOf(data.action) == -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
 				throw new Error('Socket not open. '+e.data);
 			}else{
@@ -22,7 +23,7 @@ var sockets = {},
 						var socket = sockets[data.url];
 						if(socket){
 							socket = sockets[data.url];
-							socket.ports.push(e.source);
+							socket.ports.push(source);
 							socket.property('extensions');
 							socket.property('protocol');
 							socket.property('readyState');
@@ -33,7 +34,7 @@ var sockets = {},
 							socket = {
 								url: data.url,
 								socket: ws,
-								ports: [e.source],
+								ports: [source],
 								postMessage: function(data){
 									data.url = socket.url;
 									data = JSON.stringify(sanitize(data));
@@ -107,13 +108,13 @@ var sockets = {},
 					break;
 					case 'detach':
 						var socket = sockets[data.url];
-						if(socket.ports.indexOf(e.source)!=-1){
-							socket.ports.splice(socket.ports.indexOf(e.source));
+						if(socket.ports.indexOf(source)!=-1){
+							socket.ports.splice(socket.ports.indexOf(source));
 						}
 						if(socket.ports.length === 0){
 							socket.socket.close();
 						}
-						e.source.postMessage(JSON.stringify(sanitize({
+						source.postMessage(JSON.stringify(sanitize({
 							url: socket.url,
 							action: 'event',
 							event: 'close',
