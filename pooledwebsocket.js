@@ -124,7 +124,8 @@
 			console.error(e);
 		};
 	}else{
-		revert();
+		global.PooledWebSocket = WebSocket;
+		return;
 	}
 	pool.onmessage = function(e){
 		if(e.data){
