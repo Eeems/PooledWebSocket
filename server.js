@@ -1,4 +1,5 @@
 var fs = require('fs'),
+	path = require('path'),
 	WebSocketServer = require('ws').Server,
 	wserver = new WebSocketServer({
 		host: 'localhost',
@@ -6,7 +7,7 @@ var fs = require('fs'),
 	}),
 	hserver = require('http').createServer(function(req,res){
 		console.log('Serving: %s',req.url);
-		var rs = fs.createReadStream(__dirname+req.url,{
+		var rs = fs.createReadStream(__dirname+path.normalize(req.url).replace(/^(\.\.[\/\\])+/, ''),{
 			flags: 'r',
 			autoClose: true
 		});
