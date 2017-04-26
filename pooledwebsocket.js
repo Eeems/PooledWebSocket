@@ -45,87 +45,7 @@
 			e && console.error(e);
 			console.info('Reverting to non-pooled');
 		};
-	if('SharedWorker' in window){
-		console.info('Using shared worker for pool');
-		var worker = new SharedWorker('websocketworker.js');
-		pool.worker = worker;
-		pool.handler = function(){
-			return worker.port.postMessage.apply(worker.port,arguments);
-		};
-		pool.detach = function(url){
-			pool.postMessage({
-				action: 'detach',
-				url: url
-			});
-		};
-		worker.port.onmessage = function(e){
-			pool.onmessage(e);
-		};
-		worker.onerror = function(e){
-			console.error(e);
-		};
-		worker.port.start();
-	}else if('serviceWorker' in navigator){
-		console.info('Using service worker for pool');
-		(function(){
-			var sw = {
-					postMessage: function(){
-						queue.push(arguments);
-					}
-				},
-				queue = [];
-			pool.worker = sw;
-			pool.handler = function(){
-				return sw.postMessage.apply(sw,arguments);
-			};
-			pool.detach = function(url){
-				// Do nothing. Service workers don't care
-			};
-			navigator.serviceWorker.oncontrollerchange = function(e){
-				sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker;
-			};
-			navigator.serviceWorker.onmessage = function(e){
-				pool.onmessage(e);
-			};
-			navigator.serviceWorker
-				.register('websocketworker.js',{
-					//scope: './pooledwebsocket'
-				})
-				.then(function(reg){
-					console.info('Service worker registered');
-					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
-					pool.worker = sw;
-					while(queue.length){
-						sw.postMessage.apply(sw,queue.shift());
-					}
-					sw.onstatechange = function(e){
-						if(e.target.state != 'activated'){
-							console.info('Using new service worker');
-							sw = e.target;
-						}
-					};
-				})
-				.catch(revert);
-		})();
-	}else if('Worker' in window){
-		console.info('Using shared worker for pool');
-		var worker = new Worker('websocketworker.js');
-		pool.worker = worker;
-		pool.handler = function(){
-			return worker.postMessage.apply(worker,arguments);
-		};
-		pool.detach = function(url){
-			// Handle detaching from worker
-		};
-		worker.onmessage = function(e){
-			pool.onmessage(e);
-		};
-		worker.onerror = function(e){
-			console.error(e);
-		};
-	}else{
-		revert();
-	}
+
 	pool.onmessage = function(e){
 		if(e.data){
 			var data = JSON.parse(e.data);
@@ -163,7 +83,93 @@
 				message: [],
 				error: [],
 				close: []
+			},
+			workerPath = 'websocketworker.js';
+		if(url.split('/').length >= 4){
+			workerPath += '?'+url.split('/').splice(3).join('/');
+		}
+		console.info('Using workerpath '+workerPath);
+		if('SharedWorker' in window){
+			console.info('Using shared worker for pool');
+			var worker = new SharedWorker(workerPath);
+			pool.worker = worker;
+			pool.handler = function(){
+				return worker.port.postMessage.apply(worker.port,arguments);
 			};
+			pool.detach = function(url){
+				pool.postMessage({
+					action: 'detach',
+					url: url
+				});
+			};
+			worker.port.onmessage = function(e){
+				pool.onmessage(e);
+			};
+			worker.onerror = function(e){
+				console.error(e);
+			};
+			worker.port.start();
+		}else if('serviceWorker' in navigator){
+			console.info('Using service worker for pool');
+			(function(){
+				var sw = {
+						postMessage: function(){
+							queue.push(arguments);
+						}
+					},
+					queue = [];
+				pool.worker = sw;
+				pool.handler = function(){
+					return sw.postMessage.apply(sw,arguments);
+				};
+				pool.detach = function(url){
+					// Do nothing. Service workers don't care
+				};
+				navigator.serviceWorker.oncontrollerchange = function(e){
+					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker;
+				};
+				navigator.serviceWorker.onmessage = function(e){
+					pool.onmessage(e);
+				};
+				navigator.serviceWorker
+					.register(workerPath,{
+						//scope: './pooledwebsocket'
+					})
+					.then(function(reg){
+						console.info('Service worker registered');
+						sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
+						pool.worker = sw;
+						while(queue.length){
+							sw.postMessage.apply(sw,queue.shift());
+						}
+						sw.onstatechange = function(e){
+							if(e.target.state != 'activated'){
+								console.info('Using new service worker');
+								sw = e.target;
+							}
+						};
+					})
+					.catch(revert);
+			})();
+		}else if('Worker' in window){
+			console.info('Using shared worker for pool');
+			var worker = new Worker(workerPath);
+			pool.worker = worker;
+			pool.handler = function(){
+				return worker.postMessage.apply(worker,arguments);
+			};
+			pool.detach = function(url){
+				// Handle detaching from worker
+			};
+			worker.onmessage = function(e){
+				pool.onmessage(e);
+			};
+			worker.onerror = function(e){
+				console.error(e);
+			};
+		}else{
+			return new WebSocket(url,protocols);
+		}
 		Object.defineProperties(self,{
 			readyState: {
 				get: function(){
