@@ -1,24 +1,29 @@
 {
-	"name": "pooledwebsocket",
-	"version": "0.0.18",
-	"author": {
-		"name": "Nathaniel van Diepen",
-		"email": "eeems13@gmail.com",
-		"url": "https://github.com/Eeems/PooledWebSocket"
-	},
-	"description": "Pooled Web Sockets",
-	"main": "./server.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Eeems/PooledWebSocket.git"
-	},
-	"engines": {
-		"node": ">=0.6"
-	},
-	"dependencies": {
-		"ws": "x"
-	},
-	"scripts":{
-		"start": "node server.js"
-	}
+  "name": "pooledwebsocket",
+  "version": "0.0.0-development",
+  "author": {
+    "name": "Nathaniel van Diepen",
+    "email": "eeems13@gmail.com",
+    "url": "https://github.com/Eeems/PooledWebSocket"
+  },
+  "description": "Pooled Web Sockets",
+  "main": "./server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Eeems/PooledWebSocket.git"
+  },
+  "engines": {
+    "node": ">=0.6"
+  },
+  "dependencies": {
+    "ws": "x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "devDependencies": {
+    "semantic-release-cli": "^3.0.3",
+    "semantic-release": "^6.3.2"
+  }
 }
