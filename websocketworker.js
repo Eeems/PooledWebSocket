@@ -121,6 +121,9 @@ var sockets = {},
 							arguments: []
 						})));
 					break;
+					case 'release':
+						self.close();
+					break;
 				}
 			}
 		};

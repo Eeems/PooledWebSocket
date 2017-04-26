@@ -17,12 +17,13 @@
     "node": ">=0.6"
   },
   "dependencies": {
+    "webworker-threads": "^0.7.11",
     "ws": "x"
   },
   "scripts": {
     "start": "node server.js",
     "test": "tape test/*.js",
-    "test-travis": "nyc npm test && nyc report --reporter=text-lcov > lcov.info",
+    "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "devDependencies": {

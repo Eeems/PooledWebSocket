@@ -1,5 +1,7 @@
 (function(global,undefined){
-	var pool = {
+	var Worker = typeof window === "undefined" ? require('webworker-threads').Worker : ('Worker' in window ? window.Worker : null),
+		exports = typeof window === 'undefined' ? module.exports : window,
+		pool = {
 			handler: null,
 			worker: null,
 			queue: [],
@@ -25,27 +27,39 @@
 					protocols: protocols
 				});
 			},
+			release: function(){
+				pool.postMessage({
+					action: 'release'
+				});
+			},
 			on: function(url,event,fn){
 				pool.events[event] || (pool.events[event] = []);
 				pool.events[event].push(fn);
 			}
 		},
 		revert = function(e){
-			pool.handler = function(msg){
-				return window.postMessage.call(window,msg,location.origin);
-			};
+			if(typeof window !== 'undefined'){
+				pool.handler = function(msg){
+					return window.postMessage.call(window, msg, location.origin);
+				};
+				window.addEventListener('message',function(e){
+					if(e.origin == location.origin){
+						pool.onmessage(e);
+					}
+				});
+			}
 			pool.detach = function(url){
 				// TODO - handle web socket in window
 			};
-			window.addEventListener('message',function(e){
-				if(e.origin == location.origin){
-					pool.onmessage(e);
-				}
-			});
+			pool.release = function(){
+				pool.postMessage({
+					action: 'release'
+				});
+			};
 			e && console.error(e);
 			console.info('Reverting to non-pooled');
 		};
-	if('SharedWorker' in window){
+	if(typeof window !== "undefined" && 'SharedWorker' in window){
 		console.info('Using shared worker for pool');
 		var worker = new SharedWorker('websocketworker.js');
 		pool.worker = worker;
@@ -65,7 +79,7 @@
 			console.error(e);
 		};
 		worker.port.start();
-	}else if('serviceWorker' in navigator){
+	}else if(typeof window !== "undefined" && 'serviceWorker' in navigator){
 		console.info('Using service worker for pool');
 		(function(){
 			var sw = {
@@ -107,8 +121,8 @@
 				})
 				.catch(revert);
 		})();
-	}else if('Worker' in window){
-		console.info('Using shared worker for pool');
+	}else if(Worker){
+		console.info('Using worker for pool');
 		var worker = new Worker('websocketworker.js');
 		pool.worker = worker;
 		pool.handler = function(){
@@ -123,6 +137,11 @@
 		worker.onerror = function(e){
 			console.error(e);
 		};
+		if(typeof window === 'undefined'){
+			pool.release = function(){
+				worker.terminate();
+			};
+		}
 	}else{
 		revert();
 	}
@@ -145,10 +164,11 @@
 						})
 					});
 				break;
+				case 'release':break;
 			}
 		}
 	};
-	global.PooledWebSocket = function(url,protocols){
+	exports.PooledWebSocket = function(url,protocols){
 		var self = {},
 			properties = {},
 			onevents = {},
@@ -308,4 +328,5 @@
 		});
 		return self;
 	};
-})(window);
+	exports.Pool = pool;
+})(typeof window === 'undefined' ? global : window);
