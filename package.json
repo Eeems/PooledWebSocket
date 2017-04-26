@@ -1,6 +1,7 @@
 {
   "name": "pooledwebsocket",
   "version": "0.0.0-development",
+  "license": "MIT",
   "author": {
     "name": "Nathaniel van Diepen",
     "email": "eeems13@gmail.com",
