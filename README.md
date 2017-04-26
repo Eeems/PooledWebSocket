@@ -5,3 +5,4 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 ![NPM version](https://img.shields.io/npm/v/pooledwebsocket.svg)
 [![Inline docs](http://inch-ci.org/github/Eeems/PooledWebSocket.svg?branch=master)](http://inch-ci.org/github/Eeems/PooledWebSocket)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b1ba503fccfb4da4b9a1fa94a8255135)](https://www.codacy.com/app/Eeems/PooledWebSocket?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Eeems/PooledWebSocket&amp;utm_campaign=Badge_Grade)
