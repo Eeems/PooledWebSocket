@@ -11,10 +11,10 @@ node_js:
   - '4'
 before_script:
   - npm prune
-script: "npm run test-travis"
+script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
-  - npm run semantic-release
+  - yarn run semantic-release
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
