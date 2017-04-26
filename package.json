@@ -21,12 +21,17 @@
   },
   "scripts": {
     "start": "node server.js",
+    "test": "tape test/*.js",
+    "test-travis": "nyc npm test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "devDependencies": {
+    "codacy-coverage": "^2.0.2",
     "cz-conventional-changelog": "^2.0.0",
+    "nyc": "^10.2.0",
     "semantic-release": "^6.3.2",
-    "semantic-release-cli": "^3.0.3"
+    "semantic-release-cli": "^3.0.3",
+    "tape": "^4.6.3"
   },
   "config": {
     "commitizen": {

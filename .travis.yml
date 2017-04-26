@@ -1,5 +1,6 @@
 language: node_js
 cache:
+  yarn: true
   directories:
     - node_modules
 notifications:
@@ -10,7 +11,9 @@ node_js:
   - '4'
 before_script:
   - npm prune
+script: "npm run test-travis"
 after_success:
+  - codacy-coverage < lcov.info
   - npm run semantic-release
 branches:
   except:
