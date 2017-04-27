@@ -18,11 +18,10 @@ var sockets = {},
 			if(['open','ping'].indexOf(data.action) === -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
 				throw new Error('Socket not open. '+e.data);
 			}else{
+				var socket = sockets[data.url];
 				switch(data.action){
 					case 'open':
-						var socket = sockets[data.url];
 						if(socket){
-							socket = sockets[data.url];
 							socket.ports.push(source);
 							socket.property('extensions');
 							socket.property('protocol');
@@ -98,17 +97,16 @@ var sockets = {},
 						}
 					break;
 					case 'send':
-						sockets[data.url].socket.send(data.data);
+						socket.socket.send(data.data);
 					break;
 					case 'close':
-						sockets[data.url].socket.close();
+						socket.socket.close();
 					break;
 					case 'property':
-						sockets[data.url].property(data.name);
+						socket.property(data.name);
 					break;
 					case 'detach':
-						var socket = sockets[data.url];
-						if(socket.ports.indexOf(source)!=-1){
+						if(socket.ports.indexOf(source) !== -1){
 							socket.ports.splice(socket.ports.indexOf(source));
 						}
 						if(socket.ports.length === 0){
