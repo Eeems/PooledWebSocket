@@ -23,6 +23,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "tape test/*.js",
+    "changelog": "conventional-changelog-cli -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "watch": "watch wip",
     "commit": "wip && naenae",
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
@@ -34,7 +35,8 @@
     "nyc": "^10.2.0",
     "semantic-release": "^6.3.2",
     "semantic-release-cli": "^3.0.3",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "watch": "^1.0.2"
   },
   "config": {
     "commitizen": {
