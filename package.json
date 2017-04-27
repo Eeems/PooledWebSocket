@@ -23,6 +23,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "tape test/*.js",
+    "watch": "watch wip",
+    "commit": "wip && naenae",
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
