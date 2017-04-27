@@ -15,7 +15,7 @@ var sockets = {},
 		if(e.data){
 			var data = JSON.parse(e.data),
 				source = e.source || e.target;
-			if(['open','ping'].indexOf(data.action) == -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
+			if(['open','ping'].indexOf(data.action) === -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
 				throw new Error('Socket not open. '+e.data);
 			}else{
 				switch(data.action){
