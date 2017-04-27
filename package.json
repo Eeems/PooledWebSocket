@@ -24,6 +24,8 @@
     "start": "node server.js",
     "test": "tape test/*.js",
     "changelog": "conventional-changelog-cli -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "watch": "watch wip",
+    "commit": "wip && naenae",
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
