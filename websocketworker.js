@@ -36,7 +36,7 @@ var sockets = {},
                                 port.postMessage(data);
                             });
                         }else if('postMessage' in self){
-                            postMessage(data);
+                            self.postMessage(data);
                         }
                     },
                     event: function(name, args){
@@ -124,9 +124,8 @@ var sockets = {},
             if(['open', 'ping'].indexOf(data.action) === -1 && (!sockets[data.url] || !sockets[data.url].socket.readyState === 1)){
                 throw new Error('Socket not open. ' + e.data);
             }else{
-                var socket = sockets[data.url]; // eslint-disable-line one-var
                 if(data.action in actions){
-                    actions[data.action](socket, data, source);
+                    actions[data.action](sockets[data.url], data, source);
                 }
             }
         };
