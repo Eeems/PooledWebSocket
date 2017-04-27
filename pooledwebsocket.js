@@ -87,7 +87,8 @@
 						queue.push(arguments);
 					}
 				},
-				queue = [];
+				queue = [],
+				registration;
 			pool.worker = sw;
 			pool.handler = function(){
 				return sw.postMessage.apply(sw,arguments);
@@ -96,6 +97,7 @@
 				// Do nothing. Service workers don't care
 			};
 			navigator.serviceWorker.oncontrollerchange = function(e){
+				var reg = registration;
 				sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker;
 			};
 			navigator.serviceWorker.onmessage = function(e){
@@ -107,6 +109,7 @@
 				})
 				.then(function(reg){
 					console.info('Service worker registered');
+					registration = reg;
 					sw = reg.active || reg.waiting ||  reg.installing || navigator.serviceWorker.controller;
 					pool.worker = sw;
 					while(queue.length){
