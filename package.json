@@ -23,6 +23,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "tape test/*.js",
+    "changelog": "conventional-changelog-cli -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -30,13 +31,18 @@
     "codacy-coverage": "^2.0.2",
     "cz-conventional-changelog": "^2.0.0",
     "nyc": "^10.2.0",
+    "pre-commit": "^1.2.2",
     "semantic-release": "^6.3.2",
     "semantic-release-cli": "^3.0.3",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "watch": "^1.0.2"
   },
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
-  }
+  },
+  "pre-commit": [
+    "test"
+  ]
 }

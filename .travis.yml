@@ -15,6 +15,7 @@ script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
   - yarn run semantic-release
+  - yarn run changelog
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
