@@ -1,0 +1,200 @@
+{
+    "root": true,
+    "extends": [
+        "standard",
+        "standard-jsx"
+    ],
+    "env": {
+        "browser": true,
+        "node": false
+    },
+    "globals": {
+        "Ext": true,
+        "CXEplan": true,
+        "PosseApi": true,
+        "$app": true,
+        "DocumentList": true,
+        "Viewer": true,
+        "MarkupList": true,
+        "Uploader": true,
+        "Computronix": true,
+        "$": true
+    },
+    "rules": {
+        "eqeqeq": ["warn", "smart"],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "brace-style": ["error", "1tbs", {
+            "allowSingleLine": false
+        }],
+        "keyword-spacing": ["error", {
+            "before": false,
+            "after": false,
+            "overrides": {
+                "as":{
+                    "before": false,
+                    "after": false
+                },
+                "async":{
+                    "before": false,
+                    "after": false
+                },
+                "await":{
+                    "before": false,
+                    "after": false
+                },
+                "break":{
+                    "before": false,
+                    "after": false
+                },
+                "case":{
+                    "before": false,
+                    "after": false
+                },
+                "catch":{
+                    "before": false,
+                    "after": false
+                },
+                "class":{
+                    "before": false,
+                    "after": false
+                },
+                "const":{
+                    "before": false,
+                    "after": false
+                },
+                "continue":{
+                    "before": false,
+                    "after": false
+                },
+                "debugger":{
+                    "before": false,
+                    "after": false
+                },
+                "default":{
+                    "before": false,
+                    "after": false
+                },
+                "delete":{
+                    "before": false,
+                    "after": false
+                },
+                "do":{
+                    "before": false,
+                    "after": false
+                },
+                "else":{
+                    "before": false,
+                    "after": false
+                },
+                "export":{
+                    "before": false,
+                    "after": false
+                },
+                "extends":{
+                    "before": false,
+                    "after": false
+                },
+                "finally":{
+                    "before": false,
+                    "after": false
+                },
+                "for":{
+                    "before": false,
+                    "after": false
+                },
+                "function":{
+                    "before": false,
+                    "after": false
+                },
+                "if":{
+                    "before": false,
+                    "after": false
+                },
+                "import":{
+                    "before": false,
+                    "after": false
+                },
+                "in":{
+                    "before": false,
+                    "after": false
+                },
+                "instanceof":{
+                    "before": false,
+                    "after": false
+                },
+                "let":{
+                    "before": false,
+                    "after": false
+                },
+                "new":{
+                    "before": false,
+                    "after": false
+                },
+                "of":{
+                    "before": false,
+                    "after": false
+                },
+                "return":{
+                    "before": false,
+                    "after": true
+                },
+                "static":{
+                    "before": false,
+                    "after": false
+                },
+                "super":{
+                    "before": false,
+                    "after": false
+                },
+                "switch":{
+                    "before": false,
+                    "after": false
+                },
+                "this":{
+                    "before": false,
+                    "after": false
+                },
+                "throw":{
+                    "before": false,
+                    "after": false
+                },
+                "try":{
+                    "before": false,
+                    "after": false
+                },
+                "typeof":{
+                    "before": false,
+                    "after": false
+                },
+                "var":{
+                    "before": false,
+                    "after": false
+                },
+                "void":{
+                    "before": false,
+                    "after": false
+                },
+                "while":{
+                    "before": false,
+                    "after": false
+                },
+                "with":{
+                    "before": false,
+                    "after": false
+                },
+                "yield":{
+                    "before": false,
+                    "after": false
+                }
+            }
+        }],
+        "object-curly-spacing": ["error", "never"],
+        "array-bracket-spacing": ["error", "never"],
+        "space-before-blocks": ["error", "never"],
+        "semi": ["error", "always"],
+        "space-before-function-paren": ["error", "never"],
+        "curly": ["error", "all"],
+        "one-var": ["warn", "always"],
+        "no-shadow-restricted-names": 0
+    }
+}
