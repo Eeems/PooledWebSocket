@@ -7,6 +7,31 @@
             worker: null,
             queue: [],
             events: {},
+            actions: {
+                event: function(data){
+                    console.info('Event: ' + data.event + ' ' + JSON.stringify(data.arguments));
+                    data.event in pool.events && pool.events[data.event].forEach(function(fn){
+                        fn.apply({}, data.arguments);
+                    });
+                },
+                property: function(data){
+                    pool.onmessage({
+                        data: JSON.stringify({
+                            action: 'event',
+                            event: 'property',
+                            arguments: [data.name, data.value]
+                        })
+                    });
+                },
+                release: function(){}
+            },
+            addAction: function(name, fn){
+                if(name in pool.actions){
+                    throw new Error('Action ' + name + ' already exists');
+                }else{
+                    pool.actions[name] = fn;
+                }
+            },
             postMessage: function(msg, origin){
                 var args = [
                     JSON.stringify(msg),
@@ -34,8 +59,16 @@
                 });
             },
             on: function(url, event, fn){
-                pool.events[event] || (pool.events[event] = []);
+                !(event in pool.events) && (pool.events[event] = []);
                 pool.events[event].push(fn);
+            },
+            onmessage: function(e){
+                if(e.data){
+                    var data = JSON.parse(e.data);
+                    if(data.action in pool.actions){
+                        pool.actions[data.action].call(pool, data);
+                    }
+                }
             }
         },
         revert = function(e){
@@ -65,47 +98,36 @@
             console.info('Using shared worker for pool');
             var worker = new SharedWorker('websocketworker.js');
             pool.worker = worker;
-            pool.handler = function(){
-                return worker.port.postMessage.apply(worker.port, arguments);
-            };
+            pool.handler = worker.port.postMessage.bind(worker.port);
             pool.detach = function(url){
                 pool.postMessage({
                     action: 'detach',
                     url: url
                 });
             };
-            worker.port.onmessage = function(e){
-                pool.onmessage(e);
-            };
-            worker.onerror = function(e){
-                console.error(e);
-            };
+            worker.port.onmessage = pool.onmessage.bind(pool);
+            worker.onerror = console.error.bind(console);
             worker.port.start();
         })();
     }else if(typeof window !== 'undefined' && 'serviceWorker' in navigator){
         console.info('Using service worker for pool');
         (function(){
-            var sw = {
+            var worker = {
                     postMessage: function(){
                         queue.push(arguments);
                     }
                 },
                 queue = [],
                 registration;
-            pool.worker = sw;
-            pool.handler = function(){
-                return sw.postMessage.apply(sw, arguments);
-            };
+            pool.handler = worker.postMessage.bind(worker);
             pool.detach = function(url){
                 // Do nothing. Service workers don't care
             };
             navigator.serviceWorker.oncontrollerchange = function(e){
                 var reg = registration;
-                sw = reg.active || reg.waiting || reg.installing || navigator.serviceWorker;
+                worker = reg.active || reg.waiting || reg.installing || navigator.serviceWorker;
             };
-            navigator.serviceWorker.onmessage = function(e){
-                pool.onmessage(e);
-            };
+            navigator.serviceWorker.onmessage = pool.onmessage.bind(pool);
             navigator.serviceWorker
                 .register('websocketworker.js', {
                     // scope: './pooledwebsocket'
@@ -113,69 +135,38 @@
                 .then(function(reg){
                     console.info('Service worker registered');
                     registration = reg;
-                    sw = reg.active || reg.waiting || reg.installing || navigator.serviceWorker.controller;
-                    pool.worker = sw;
+                    worker = reg.active || reg.waiting || reg.installing || navigator.serviceWorker.controller;
+                    pool.worker = worker;
                     while(queue.length){
-                        sw.postMessage.apply(sw, queue.shift());
+                        worker.postMessage.apply(worker, queue.shift());
                     }
-                    sw.onstatechange = function(e){
+                    worker.onstatechange = function(e){
                         if(e.target.state !== 'activated'){
                             console.info('Using new service worker');
-                            sw = e.target;
+                            worker = e.target;
                         }
                     };
-                })
-                .catch(revert);
+                }, revert);
+            pool.worker = worker;
         })();
     }else if(Worker){
         (function(){
             console.info('Using worker for pool');
             var worker = new Worker('websocketworker.js');
-            pool.worker = worker;
-            pool.handler = function(){
-                return worker.postMessage.apply(worker, arguments);
-            };
+            pool.handler = worker.postMessage.bind(worker);
             pool.detach = function(url){
                 // Handle detaching from worker
             };
-            worker.onmessage = function(e){
-                pool.onmessage(e);
-            };
-            worker.onerror = function(e){
-                console.error(e);
-            };
+            worker.onmessage = pool.onmessage.bind(pool);
+            worker.onerror = console.error.bind(console);
             if(typeof window === 'undefined'){
-                pool.release = function(){
-                    worker.terminate();
-                };
+                pool.release = worker.terminate.bind(worker);
             }
+            pool.worker = worker;
         })();
     }else{
         revert();
     }
-    pool.onmessage = function(e){
-        if(e.data){
-            var data = JSON.parse(e.data);
-            switch(data.action){
-                case'event':
-                    console.info('Event: ' + data.event + ' ' + JSON.stringify(data.arguments));
-                    pool.events[data.event] && pool.events[data.event].forEach(function(fn){
-                        fn.apply({}, data.arguments);
-                    });
-                    break;
-                case'property':
-                    pool.onmessage({
-                        data: JSON.stringify({
-                            action: 'event',
-                            event: 'property',
-                            arguments: [data.name, data.value]
-                        })
-                    });
-                    break;
-                case'release':break;
-            }
-        }
-    };
     exports.PooledWebSocket = function(url, protocols){
         var self = {},
             properties = {},
@@ -266,7 +257,7 @@
                     events[name].forEach(function(fn){
                         fn.apply(self, args);
                     });
-                    onevents['on' + name] && onevents['on' + name].apply(self, args);
+                    'on' + name in onevents && onevents['on' + name].apply(self, args);
                 });
                 if(events[name].length > 0 || onevents['on' + name]){
                     queue[name] = [];
@@ -279,13 +270,13 @@
             self.runQueue(name);
         };
         self.on = function(event, fn){
-            events[event] || (events[event] = []);
+            !(event in events) || (events[event] = []);
             events[event].push(fn);
             self.runQueue(event);
             return self;
         };
         self.off = function(event, fn){
-            if(events[event] && events[event].indexOf(fn) !== -1){
+            if(event in events && events[event].indexOf(fn) !== -1){
                 events[event].splice(events[event].indexOf(fn), 1);
             }
             return self;
