@@ -30,7 +30,8 @@
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "lint": "standard-own --fix --verbose | snazzy",
-    "precommit": "yarn run lint && yarn run test"
+    "precommit": "yarn run lint && yarn run test",
+    "prepush": "yarn run commit-cleanup"
   },
   "devDependencies": {
     "codacy-coverage": "^2.0.2",
