@@ -1,5 +1,25 @@
 <a name="0.0.0-development"></a>
-# [0.0.0-development](https://github.com/Eeems/PooledWebSocket/compare/v0.1.2...v0.0.0-development) (2017-04-27)
+# [0.0.0-development](https://github.com/Eeems/PooledWebSocket/compare/v0.2.0...v0.0.0-development) (2017-04-28)
+
+
+
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/Eeems/PooledWebSocket/compare/v0.1.3...v0.2.0) (2017-04-27)
+
+
+### Features
+
+* **browser:** Extendable actions ([#22](https://github.com/Eeems/PooledWebSocket/issues/22)) ([894bf33](https://github.com/Eeems/PooledWebSocket/commit/894bf33))
+
+
+
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/Eeems/PooledWebSocket/compare/v0.1.2...v0.1.3) (2017-04-27)
+
+
+### Bug Fixes
+
+* Fix linting ([#20](https://github.com/Eeems/PooledWebSocket/issues/20)) ([596d537](https://github.com/Eeems/PooledWebSocket/commit/596d537))
 
 
 
