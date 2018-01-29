@@ -27,7 +27,7 @@
     "watch": "watch wip --ignoreUnreadable --ignoreDotFiles",
     "commit": "wip && naenae",
     "commit-cleanup": "git branch | grep wip-archive/ | xargs -r git branch -D",
-    "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
+    "test-travis": "./node_modules/.bin/nyc yarn test && ./node_modules/.bin/nyc report --reporter=text-lcov > lcov.info",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "lint": "standard-own --fix --verbose | snazzy",
     "precommit": "yarn run lint && yarn run test",
