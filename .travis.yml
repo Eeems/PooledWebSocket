@@ -8,8 +8,6 @@ notifications:
 node_js:
   - 'stable'
   - '8'
-before_script:
-  - npm prune --production=false
 script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
