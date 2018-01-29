@@ -6,10 +6,10 @@ cache:
 notifications:
   email: false
 node_js:
-  - 'node'
+  - 'stable'
   - '8'
 before_script:
-  - npm prune
+  - npm prune --production=false
 script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
