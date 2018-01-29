@@ -6,10 +6,8 @@ cache:
 notifications:
   email: false
 node_js:
-  - '7'
-  - '6'
-before_script:
-  - npm prune
+  - 'stable'
+  - '8'
 script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
