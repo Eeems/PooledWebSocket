@@ -28,10 +28,11 @@
     "commit": "wip && naenae",
     "commit-cleanup": "git branch | grep wip-archive/ | xargs -r git branch -D",
     "test-travis": "nyc yarn test && nyc report --reporter=text-lcov > lcov.info",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release",
     "lint": "standard-own --fix --verbose | snazzy",
     "precommit": "yarn run lint && yarn run test",
-    "prepush": "yarn run commit-cleanup"
+    "prepush": "yarn run commit-cleanup",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "devDependencies": {
     "codacy-coverage": "^2.0.2",
@@ -39,13 +40,14 @@
     "cz-conventional-changelog": "^2.0.0",
     "husky": "^0.14.0",
     "nyc": "^11.0.1",
-    "semantic-release": "^15.0.0",
+    "semantic-release": "^15.1.7",
     "semantic-release-cli": "^3.0.3",
     "snazzy": "^7.0.0",
     "standard": "^11.0.0",
     "standard-own": "^1.0.2",
     "tape": "^4.6.3",
-    "watch": "^1.0.2"
+    "watch": "^1.0.2",
+    "travis-deploy-once": "^4.4.1"
   },
   "config": {
     "commitizen": {
