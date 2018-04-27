@@ -11,7 +11,7 @@ node_js:
 script: "yarn run test-travis"
 after_success:
   - codacy-coverage < lcov.info
-  - yarn run semantic-release
+  - semantic-release
   - yarn run changelog
 branches:
   except:
