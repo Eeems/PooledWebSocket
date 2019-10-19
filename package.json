@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "webworker-threads": "^0.7.17",
-    "ws": "7.1.2"
+    "ws": "7.2.0"
   },
   "scripts": {
     "start": "node server.js",
