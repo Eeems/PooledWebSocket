@@ -7,10 +7,7 @@ notifications:
   webhooks: https://www.travisbuddy.com/?insertMode=update
   on_success: never
   email: false
-node_js:
-  - '13'
-  - '12'
-  - '11'
+node_js
   - '10'
 script: "yarn run test-travis"
 after_success:
