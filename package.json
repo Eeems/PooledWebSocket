@@ -40,7 +40,7 @@
     "cz-conventional-changelog": "^2.1.0",
     "husky": "^4.2.5",
     "nyc": "^15.1.0",
-    "semantic-release": "^15.13.3",
+    "semantic-release": "^17.2.1",
     "semantic-release-cli": "^5.0.0",
     "snazzy": "^9.0.0",
     "standard": "^15.0.0",
