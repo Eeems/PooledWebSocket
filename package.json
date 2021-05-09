@@ -38,7 +38,7 @@
     "codacy-coverage": "^3.4.0",
     "conventional-changelog-cli": "^2.0.12",
     "cz-conventional-changelog": "^3.3.0",
-    "husky": "^4.2.5",
+    "husky": "^6.0.0",
     "nyc": "^15.1.0",
     "semantic-release": "^17.2.1",
     "semantic-release-cli": "^5.0.0",
